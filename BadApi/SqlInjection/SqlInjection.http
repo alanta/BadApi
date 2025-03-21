@@ -1,0 +1,19 @@
+@BadApi_HostAddress = http://localhost:5062
+
+### SqlInjection : Bad
+POST {{BadApi_HostAddress}}/sqlinjection/bad
+Content-Type: application/json
+
+{
+    "name": "' OR 1=1 --",
+    "password": "123456"
+}
+
+### SqlInjection : parameterized query
+POST {{BadApi_HostAddress}}/sqlinjection/good
+Content-Type: application/json
+
+{
+  "name": "' OR 1=1 --",
+  "password": "123456"
+}

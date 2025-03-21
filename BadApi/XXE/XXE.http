@@ -1,0 +1,21 @@
+@BadApi_HostAddress = http://localhost:5062
+
+### Bad
+
+POST {{BadApi_HostAddress}}/xxe/bad
+Content-Type: application/xml
+
+<!DOCTYPE data [
+        <!ENTITY file SYSTEM "file:///tmp/testxxe">
+        ]>
+<user>&file;</user>
+
+
+### Proper deserialization
+POST {{BadApi_HostAddress}}/xxe/good/
+Content-Type: application/xml
+
+<!DOCTYPE data [
+        <!ENTITY file SYSTEM "file:///tmp/testxxe">
+        ]>
+<user>&file;</user>

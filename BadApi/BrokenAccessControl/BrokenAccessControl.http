@@ -1,0 +1,22 @@
+@BadApi_HostAddress = http://localhost:5062
+@username = bob
+@password = bobpw
+
+@purchaseUser = Fatima
+@purchasePassword = fatimapw
+
+### Bad : user roles are not checked
+GET {{BadApi_HostAddress}}/invoice/v1
+Authorization: Basic {{username}} {{password}}
+
+### Better : proper authorization, developer denied access
+GET {{BadApi_HostAddress}}/invoice/v2
+Authorization: Basic {{username}} {{password}}
+
+### But still bad : proper authorization, but data is not filtered by user
+GET {{BadApi_HostAddress}}/invoice/v2
+Authorization: Basic {{purchaseUser}} {{purchasePassword}}
+
+### Good : role-based access control + data filtering
+GET {{BadApi_HostAddress}}/invoice/v3
+Authorization: Basic {{purchaseUser}} {{purchasePassword}}
