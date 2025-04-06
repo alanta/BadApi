@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace BadApi.OverPosting;
 
 /// <summary>
-/// Endpoints used to demonstrate over posting vulnerabilities.
+/// Endpoints used to demonstrate over-posting vulnerabilities, leading to privilege escalation
 /// </summary>
 /// <remarks>
 /// No authentication is required to keep the example simple.
@@ -15,25 +15,25 @@ public class Endpoints
     {
         app.MapPost("/overposting/updatenamev1", (Delegate)UpdateNameV1);
         app.MapPost("/overposting/updatenamev2", (Delegate)UpdateNameV2);
-        app.MapPost("/overposting/updatenamev4", (Delegate)UpdateNameV4);
+        app.MapPost("/overposting/updatenamev3", (Delegate)UpdateNameV3);
     }
     
     // Very bad:
     // - Accepts the entire entity, without validation
     // - Assign any other property on the entity, like roles
+    // - Will update other users as well
     // - Upserts the entity, creating a new user if the ID is 0
-    // - Returns the entire entity, including the hashed password
-    public static async Task<IResult> UpdateNameV1([FromBody]UserEntity model)
+    public static async Task<IResult> UpdateNameV1([FromBody]UserEntity model, [FromServices]Database db)
     {
-        DatabaseUtils.Upsert(model);
+        db.Users.Upsert(model);
         return Results.Ok(model);
     }
     
     // Better:
     // - Validate inputs
     // - Targeted update
-    // - Return a 200 response, nu further information is disclosed
-    public static async Task<IResult> UpdateNameV2([FromBody]UpdateUserNameRequest model)
+    // - Returns a 200 response, no further information is disclosed
+    public static async Task<IResult> UpdateNameV2([FromBody]UpdateUserNameRequest model, [FromServices]Database db)
     {
         // Validate input: make sure the request is valid
         if( string.IsNullOrWhiteSpace(model.Name) )
@@ -42,23 +42,23 @@ public class Endpoints
         }
         
         // Validate input: make sure the entity exists 
-        var user = await DatabaseUtils.FindById(model.Id);
+        var user = await db.Users.FindById(model.Id);
         if( user == null )
         {
             return Results.NotFound();
         }
         
-        // Mitigate over posting by only updating the name on the entity loaded from the database
+        // Mitigate over-posting by only updating the name on the entity loaded from the database
         user.Name = model.Name;
-        DatabaseUtils.Upsert(user);
+        db.Users.Upsert(user);
         
-        return Results.Ok();
+        return Results.Ok(); // Don't return excess information
     }
     
-    public static async Task<IResult> UpdateNameV4([FromBody]UpdateUserNameRequest model)
+    public static async Task<IResult> UpdateNameV3([FromBody]UpdateUserNameRequest model, [FromServices]Database db)
     {
         // Mitigate over posting with targeted update
-        var success = DatabaseUtils.SetUserName(model.Id, model.Name);
+        var success = db.Users.SetUserName(model.Id, model.Name);
         
         return success ? Results.Accepted() : Results.BadRequest();
     }

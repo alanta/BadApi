@@ -10,25 +10,33 @@ public static class Endpoints
 {
     public static void Register(WebApplication app)
     {
+        app.MapGet("/users", (Delegate)List)
+            .RequireAuthorization();
+        app.MapGet("/users/{id:int}", (Delegate)Show)
+            .RequireAuthorization();
+        
         var group = app.MapGroup("account")
             // best practice: Require authorization for all endpoints in this group
             .RequireAuthorization();
-
-        group.MapPost("/account/login", (Delegate)Login);
-        group.MapPost("/account/password", (Delegate)ResetPassword);
         
-        app.MapGet("/users", (Delegate)List)
-            .RequireAuthorization();
+        group.MapPost("/login", (Delegate)Login);
+        group.MapPost("/password", (Delegate)ResetPassword);
     }
     
-    public static async Task<IResult> List()
+    public static async Task<IResult> List([FromServices]Database db)
     {
-        var model = DatabaseUtils.List();
+        var model = db.Users.List();
         return Results.Ok(model);
     }
     
+    public static async Task<IResult> Show(int id, [FromServices]Database db)
+    {
+        var model = await db.Users.FindById(id);
+        return model != null ? Results.Ok(model) : Results.NotFound();
+    }
+    
     /// <summary>
-    /// Login
+    /// Login handled in BasicAuthenticationHandler
     /// </summary>
     public static async Task<IResult> Login(HttpContext context)
     {
@@ -40,12 +48,12 @@ public static class Endpoints
     /// <summary>
     /// Change my password
     /// </summary>
-    public static async Task<IResult> ResetPassword([FromBody]string password, HttpContext context)
+    public static async Task<IResult> ResetPassword([FromBody]string password, HttpContext context, [FromServices]Database db)
     {
         // Request is authenticated, user is the current user
         var user = context.GetUser();
         
-        var success = DatabaseUtils.SetPassword(user.Id, password);
+        var success = db.Users.SetPassword(user.Id, password);
 
         return success ? Results.Ok() : Results.Conflict();
     }

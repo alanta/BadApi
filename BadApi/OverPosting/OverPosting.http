@@ -1,19 +1,19 @@
 @BadApi_HostAddress = http://localhost:5062
 
-### List users
-GET {{BadApi_HostAddress}}/users
+### Inspect user
+GET {{BadApi_HostAddress}}/users/1
 Authorization: Basic claire admin
 
-### Very bad 1 - it works, but...
+### v1 : Very bad - it works, but...
 POST {{BadApi_HostAddress}}/overposting/updatenamev1
 Content-Type: application/json
 
 {
     "Id": 1,
-    "name": "All your base are belong to us"
+    "name": "All your bases are belong to us"
 }
 
-### Very bad 1 - no validation of the name
+### v1 : Very bad - no validation of the name
 POST {{BadApi_HostAddress}}/overposting/updatenamev1
 Content-Type: application/json
 
@@ -22,17 +22,17 @@ Content-Type: application/json
   "name": ""
 }
 
-### Very bad 1 - make user admin
+### v1 : Very bad - make user admin
 POST {{BadApi_HostAddress}}/overposting/updatenamev1
 Content-Type: application/json
 
 {
   "Id": 1,
-  "name": "All your base are belong to us",
+  "name": "God mode!",
   "roles": ["developer","admin"]
 }
 
-### Very bad 1 - create new user
+### v1: Very bad - create new user
 POST {{BadApi_HostAddress}}/overposting/updatenamev1
 Content-Type: application/json
 
@@ -41,25 +41,34 @@ Content-Type: application/json
   "roles": ["admin"]
 }
 
-### Fixed
+### v1: Very bad - update other user
+POST {{BadApi_HostAddress}}/overposting/updatenamev1
+Content-Type: application/json
+
+{
+  "Id": 2,
+  "name": "Pwned"
+}
+
+### v2: Fixed
 POST {{BadApi_HostAddress}}/overposting/updatenamev2
 Content-Type: application/json
 
 {
-  "Id": 1,
+  "id": 1,
   "name": "Alicia"
 }
 
-### Fixed - no empty name allowed
+### v2: Fixed - no empty name allowed
 POST {{BadApi_HostAddress}}/overposting/updatenamev2
 Content-Type: application/json
 
 {
-    "Id": 1,
+    "id": 1,
     "name": ""
 }
 
-### Fixed - additional fields are ignored
+### v2: Fixed - additional fields are ignored
 POST {{BadApi_HostAddress}}/overposting/updatenamev2
 Content-Type: application/json
 
@@ -76,4 +85,13 @@ Content-Type: application/json
 {
     "Id": 0,
     "name": "New user"
+}
+
+### Fixed - targeted update
+POST {{BadApi_HostAddress}}/overposting/updatenamev3
+Content-Type: application/json
+
+{
+  "Id": 1,
+  "name": "Alice"
 }

@@ -10,6 +10,7 @@ using Microsoft.Extensions.Options;
 namespace BadApi.Account;
 
 public class BasicAuthenticationHandler(
+    Database database,
     IOptionsMonitor<AuthenticationSchemeOptions> options,
     ILoggerFactory logger,
     UrlEncoder encoder)
@@ -33,7 +34,7 @@ public class BasicAuthenticationHandler(
             var username = credentials[0];
             var password = credentials[1];
 
-            var user = await DatabaseUtils.Login(username, password);
+            var user = await database.Users.Login(username, password);
             if (user == null)
             {
                 return AuthenticateResult.Fail("Invalid Username or Password");

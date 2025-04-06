@@ -1,5 +1,6 @@
 using BadApi.Account;
 using BadApi.Data;
+using Microsoft.AspNetCore.Mvc;
 
 namespace BadApi.BrokenAccessControl;
 
@@ -31,29 +32,29 @@ public static class Endpoints
             .RequireAuthorization("purchase");
     }
     
-    public static async Task<IResult> List()
+    public static async Task<IResult> List([FromServices]Database db)
     {
-        var model = DatabaseUtils.Invoices.List();
+        var model = db.Invoices.List();
         return Results.Ok(model);
     }
     
-    public static async Task<IResult> FilteredList(HttpContext context)
+    public static async Task<IResult> FilteredList(HttpContext context, [FromServices]Database db)
     {
         var user = context.GetUser();
-        var model = DatabaseUtils.Invoices.List(user.Id);
+        var model = db.Invoices.List(user.Id);
         return Results.Ok(model);
     }
     
-    public static async Task<IResult> Invoice(string id)
+    public static async Task<IResult> Invoice(string id, [FromServices]Database db)
     {
-        var model = DatabaseUtils.Invoices.FindByNumber(id);
+        var model = db.Invoices.FindByNumber(id);
         return model != null ? Results.Ok(model) : Results.NotFound();
     }
     
-    public static async Task<IResult> InvoiceFiltered(string id, HttpContext context)
+    public static async Task<IResult> InvoiceFiltered(string id, HttpContext context, [FromServices]Database db)
     {
         var user = context.GetUser();
-        var model = DatabaseUtils.Invoices.FindByNumber(id, user.Id);
+        var model = db.Invoices.FindByNumber(id, user.Id);
         return model != null ? Results.Ok(model) : Results.NotFound();
     }
 }

@@ -5,10 +5,17 @@ using System.Xml.Serialization;
 
 namespace BadApi.XXE;
 
+/// <summary>
+/// Xml eXternal Entity (XXE) Injection
+/// </summary>
 public static class Endpoints
 {
-    // Xml eXternal Entity (XXE) Injection
-    
+    public static void Register(WebApplication app)
+    {
+        app.MapPost("/xxe/bad", (Delegate)Bad);
+        app.MapPost("/xxe/good", (Delegate)Good);
+    }
+
     public static async Task<IResult> Bad(HttpContext context)
     {
         using var reader = new StreamReader(context.Request.Body, Encoding.UTF8);
@@ -47,6 +54,7 @@ public static class Endpoints
 
     public static async Task<IResult> Good(HttpContext context)
     {
+        // Use a safer method to deserialize XML
         var serializer = new XmlSerializer(typeof(XmlModel));
         XmlModel? model;
 
