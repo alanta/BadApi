@@ -5,7 +5,7 @@ POST {{BadApi_HostAddress}}/sqlinjection/bad
 Content-Type: application/json
 
 {
-    "name": "' OR 1=1; DROP TABLE users --",
+    "name": "' OR 1=1;",
     "password": "123456"
 }
 

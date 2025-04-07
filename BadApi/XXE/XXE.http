@@ -1,6 +1,6 @@
 @BadApi_HostAddress = http://localhost:5062
 
-### Bad
+### XXE : Bad
 
 POST {{BadApi_HostAddress}}/xxe/bad
 Content-Type: application/xml
@@ -11,7 +11,7 @@ Content-Type: application/xml
 <user>&file;</user>
 
 
-### Proper deserialization
+### XXE : Proper deserialization
 POST {{BadApi_HostAddress}}/xxe/good/
 Content-Type: application/xml
 

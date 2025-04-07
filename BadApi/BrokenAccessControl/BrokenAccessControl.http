@@ -1,7 +1,9 @@
 @BadApi_HostAddress = http://localhost:5062
+# Bob is developer
 @username = bob
 @password = bobpw
 
+# Fatima is purchaser
 @purchaseUser = Fatima
 @purchasePassword = fatimapw
 
