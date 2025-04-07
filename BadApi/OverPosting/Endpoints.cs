@@ -38,7 +38,11 @@ public class Endpoints
         // Validate input: make sure the request is valid
         if( string.IsNullOrWhiteSpace(model.Name) )
         {
-            return Results.ValidationProblem([new(nameof(model.Name), ["Name is required"])] );
+            return Results.ValidationProblem( 
+                new Dictionary<string, string[]>
+                {
+                    { nameof(model.Name), new[] { "Name is required." } }
+                });
         }
         
         // Validate input: make sure the entity exists 
