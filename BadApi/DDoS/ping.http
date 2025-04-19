@@ -1,0 +1,10 @@
+@BadApi_HostAddress = http://localhost:5062
+
+### Ping
+// Ping the application during a DDOS - it should respond quickly
+// If not, health checks will fail and the container will likely be killed
+// by the hosting environment
+
+POST {{BadApi_HostAddress}}
+
+
