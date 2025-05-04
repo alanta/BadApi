@@ -1,4 +1,4 @@
-using System.Data.SQLite;
+using Microsoft.Data.Sqlite;
 using BadApi.Data;
 using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
@@ -28,7 +28,7 @@ public static class Endpoints
         // Don't store plaintext passwords in the database, obviously
         var hashedPassword = Users.HashPassword(model.Password);
         
-        var command = new SQLiteCommand(
+        var command = new SqliteCommand(
             $"SELECT * FROM users WHERE name = '{model.Name}' and hashedpassword = '{hashedPassword}'",
             db.Db);
 
@@ -48,7 +48,7 @@ public static class Endpoints
         // We don't store plaintext passwords in the database, obviously
         var hashedPassword = Users.HashPassword(model.Password);
         
-        var command = new SQLiteCommand(
+        var command = new SqliteCommand(
             // Use parameterized queries to prevent SQL injection
             "SELECT * FROM users WHERE name = @name and hashedpassword = @pw", 
             db.Db);
@@ -84,7 +84,7 @@ public static class Endpoints
         
         try
         {
-            var command = new SQLiteCommand(
+            var command = new SqliteCommand(
                 // Use parameterized queries to prevent SQL injection
                 // Limit the columns and number of records returned to 1 for both performance and security
                 "SELECT 1 FROM users WHERE name = @name and hashedpassword = @pw LIMIT 1", 

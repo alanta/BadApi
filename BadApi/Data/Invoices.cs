@@ -1,13 +1,13 @@
-using System.Data.SQLite;
+using Microsoft.Data.Sqlite;
 
 namespace BadApi.Data;
 
-public class Invoices(SQLiteConnection db)
+public class Invoices(SqliteConnection db)
 {
     public InvoiceDetailsResponse[] List(int? userId = null)
     {
         var command =
-            new SQLiteCommand(
+            new SqliteCommand(
                 "SELECT invoices.id, users.name, invoice_number, amount_payable, currency, due_date, description, status FROM invoices INNER JOIN users ON users.id=user_id",
                 db);
 
@@ -42,7 +42,7 @@ public class Invoices(SQLiteConnection db)
     public InvoiceDetailsResponse? FindByNumber(string invoiceNumber, int? userId = null)
     {
         var command =
-            new SQLiteCommand(
+            new SqliteCommand(
                 "SELECT invoices.id, users.name, invoice_number, amount_payable, currency, due_date, description, status FROM invoices INNER JOIN users ON users.id=user_id WHERE invoice_number = @invoice_number LIMIT 1",
                 db);
         command.Parameters.AddWithValue("invoice_number", invoiceNumber);

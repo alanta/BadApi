@@ -1,17 +1,17 @@
 using System.Data.Common;
-using System.Data.SQLite;
+using Microsoft.Data.Sqlite;
 using BadApi.OverPosting;
 using Microsoft.AspNetCore.Identity;
 
 namespace BadApi.Data;
 
-public class Users(SQLiteConnection db)
+public class Users(SqliteConnection db)
 {
     private static readonly PasswordHasher<UserEntity> PasswordHasher = new (); // Borrowing the password hasher from ASP.NET Core Identity
     
     public async Task<UserEntity?> FindById(int id, CancellationToken cancellationToken = default)
     {
-        var command = new SQLiteCommand("SELECT id, name, hashedpassword, roles FROM users WHERE id = @id LIMIT 1", db);
+        var command = new SqliteCommand("SELECT id, name, hashedpassword, roles FROM users WHERE id = @id LIMIT 1", db);
         command.Parameters.AddWithValue("id", id);
 
         await using var reader = await command.ExecuteReaderAsync(cancellationToken);
@@ -36,7 +36,7 @@ public class Users(SQLiteConnection db)
     
     public async Task<UserEntity?> FindByName(string name, CancellationToken cancellationToken = default)
     {
-        var command = new SQLiteCommand("SELECT id, name, hashedpassword, roles FROM users WHERE name = @name LIMIT 1", db);
+        var command = new SqliteCommand("SELECT id, name, hashedpassword, roles FROM users WHERE name = @name LIMIT 1", db);
         command.Parameters.AddWithValue("name", name);
 
         await using var reader = await command.ExecuteReaderAsync(cancellationToken);
@@ -50,7 +50,7 @@ public class Users(SQLiteConnection db)
     
     public UserDetailsResponse[] List()
     {
-        var command = new SQLiteCommand("SELECT id, name, roles FROM users", db);
+        var command = new SqliteCommand("SELECT id, name, roles FROM users", db);
         using var reader = command.ExecuteReader();
         
         var result = new List<UserDetailsResponse>();
@@ -67,7 +67,7 @@ public class Users(SQLiteConnection db)
     
     public bool SetUserName(int id, string name)
     {
-        var command = new SQLiteCommand("UPDATE users SET name = @name WHERE id = @id", db);
+        var command = new SqliteCommand("UPDATE users SET name = @name WHERE id = @id", db);
         command.Parameters.AddWithValue("name", name);
         command.Parameters.AddWithValue("id", id);
 
@@ -80,7 +80,7 @@ public class Users(SQLiteConnection db)
         if( entity.Id == 0)
         {
             var command =
-                new SQLiteCommand(
+                new SqliteCommand(
                     "INSERT INTO users(id, name, hashedpassword, roles) VALUES (NULL, @name, @hashedPassword, @roles); SELECT last_insert_rowid()",
                     db);
             
@@ -102,7 +102,7 @@ public class Users(SQLiteConnection db)
         else
         {
             var command =
-                new SQLiteCommand(
+                new SqliteCommand(
                     "UPDATE users SET name = @name, roles = @roles WHERE id = @id",
                     db);
             
@@ -145,7 +145,7 @@ public class Users(SQLiteConnection db)
     {
         var hashedpassword = HashPassword(password);
         
-        var command = new SQLiteCommand("UPDATE users SET hashedpassword = @hashedpassword WHERE id = @id", db);
+        var command = new SqliteCommand("UPDATE users SET hashedpassword = @hashedpassword WHERE id = @id", db);
         command.Parameters.AddWithValue("hashedpassword", hashedpassword);
         command.Parameters.AddWithValue("id", userId);
 
