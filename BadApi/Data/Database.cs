@@ -1,4 +1,4 @@
-using System.Data.SQLite;
+using Microsoft.Data.Sqlite;
 using BadApi.OverPosting;
 
 namespace BadApi.Data;
@@ -11,7 +11,7 @@ public class Database
 {
     private readonly string _dbFilePath = Path.Combine(Path.GetTempPath(), $"{Guid.NewGuid()}.db");
 
-    public SQLiteConnection? Db { get; private set; }
+    public SqliteConnection? Db { get; private set; }
 
     public string GetConnectionString()
     {
@@ -27,28 +27,28 @@ public class Database
         
         Console.WriteLine("Seeding database in " + _dbFilePath);
 
-        SQLiteConnection.CreateFile(_dbFilePath);
-        Db = new SQLiteConnection(GetConnectionString());
+        //SqliteConnection.CreateFile(_dbFilePath);
+        Db = new SqliteConnection(GetConnectionString());
         
         Users = new Users(Db);
         Invoices = new Invoices(Db);
         
         Db.Open();
         // ⚠️ This is NOT how to store users and passwords. Please use the built-in ASP.NET Core Identity system or an external identity provider
-        new SQLiteCommand("create table users(id INTEGER PRIMARY KEY AUTOINCREMENT, name nvarchar(20), hashedpassword nvarchar(100), roles nvarchar(100))", Db).ExecuteNonQuery();
+        new SqliteCommand("create table users(id INTEGER PRIMARY KEY AUTOINCREMENT, name nvarchar(20), hashedpassword nvarchar(100), roles nvarchar(100))", Db).ExecuteNonQuery();
         
         Users.Upsert(new UserEntity { Name = "alice", HashedPassword = Users.HashPassword("alicepw"), Roles = ["developer"] });
         Users.Upsert(new UserEntity { Name = "bob", HashedPassword = Users.HashPassword("bobpw"), Roles = ["developer"] });
         Users.Upsert(new UserEntity { Name = "claire", HashedPassword = Users.HashPassword("admin"), Roles = ["admin"] });
         
-        new SQLiteCommand("create table invoices(id INTEGER PRIMARY KEY AUTOINCREMENT, user_id INTEGER, invoice_number TEXT, amount_payable REAL, currency TEXT, due_date TEXT, description TEXT, status TEXT, FOREIGN KEY(user_id) REFERENCES users(id))", Db).ExecuteNonQuery();
+        new SqliteCommand("create table invoices(id INTEGER PRIMARY KEY AUTOINCREMENT, user_id INTEGER, invoice_number TEXT, amount_payable REAL, currency TEXT, due_date TEXT, description TEXT, status TEXT, FOREIGN KEY(user_id) REFERENCES users(id))", Db).ExecuteNonQuery();
         
         Users.Upsert(new UserEntity { Name = "Hiroshi", HashedPassword = Users.HashPassword("hiroshipw"), Roles = ["purchase"] });
         Users.Upsert(new UserEntity { Name = "Fatima", HashedPassword = Users.HashPassword("fatimapw"), Roles = ["purchase"] });
         Users.Upsert(new UserEntity { Name = "Lars", HashedPassword = Users.HashPassword("larspw"), Roles = ["purchase"] });
         Users.Upsert(new UserEntity { Name = "Priya", HashedPassword = Users.HashPassword("priyapw"), Roles = ["purchase"] });
 
-        new SQLiteCommand(
+        new SqliteCommand(
                 @"INSERT INTO invoices(user_id, invoice_number, amount_payable, currency, due_date, description, status) VALUES
 (4, 'INV001', 500, 'USD', '2025-04-01', 'Monthly subscription for office stationery', 'Open'),
 (5, 'INV002', 600, 'USD', '2025-04-05', 'Printer ink', 'Paid'),
