@@ -13,11 +13,10 @@ public static class Configuration
         {
             options.AddFixedWindowLimiter(policyName, policy =>
             {
-                policy.PermitLimit = 50;
+                policy.PermitLimit = 100;
                 policy.Window = TimeSpan.FromSeconds(5);
                 policy.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
-                policy.QueueLimit = 10;
-
+                policy.QueueLimit = 25;
             });
             options.OnRejected = (context, cancellationToken) =>
             {

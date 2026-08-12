@@ -16,6 +16,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\BadApi\BadApi.csproj" />
+      <ProjectReference Include="..\DDoS\DDoS.csproj" />
     </ItemGroup>
 
 </Project>

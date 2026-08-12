@@ -1,0 +1,72 @@
+@BadApi_HostAddress = http://localhost:5062
+
+### DDoS lab: how to use this file
+// This scenario is about denial-of-service behavior, not a normal CRUD endpoint.
+// The goal is to observe how a slow, blocking request can tie up server resources.
+//
+// 1. Start the API using the normal project run command.
+// 2. Keep the terminal or Aspire dashboard open so you can watch the API logs.
+// 3. Send the requests below one after another, ideally in quick succession.
+// 4. Compare the behavior of /ddos/bad, /ddos/better, and /ddos/good.
+// 5. Then open BadApi/DDoS/Endpoints.cs and match the observed behavior to the code.
+// 6. Finally, run the manual load-test app from this repo to simulate a real traffic spike.
+//
+// The important lesson is that a request can look harmless while still consuming
+// server resources in a way that makes the app unresponsive.
+
+### Manual load generator setup
+// The separate DDoS app is not integrated with Aspire yet, so it must be started manually.
+// From the repo root, run one of these examples:
+//
+//   dotnet run --project DDoS/DDoS.csproj -- bad
+//   dotnet run --project DDoS/DDoS.csproj -- better
+//   dotnet run --project DDoS/DDoS.csproj -- good
+//
+// This starts NBomber against the selected API endpoint and sends a high rate of requests to
+// produce the resource exhaustion effect. The scenarion takes 5 minutes to complete.
+//
+// Watch the terminal while the load generator runs. You should see the server slow down,
+// queue requests, and eventually become less responsive as the app struggles under load.
+//
+// Once the test completes, you can review the results int the HTML report. Look in the 
+// reports folder. Pay special attention to the Throughput and Latency charts.
+
+### 1. Vulnerable endpoint: blocking thread
+// This endpoint intentionally sleeps for 5 seconds on the server thread.
+// If you fire several requests quickly, the app will start to feel stuck.
+POST {{BadApi_HostAddress}}/ddos/bad?id=demo-1
+Content-Type: application/json
+
+{}
+
+### 2. Still bad: rate limiting does not fix a blocking server call
+// This endpoint is still slow, even though a rate limit is applied.
+// The point is to show that mitigation must target the actual resource issue.
+POST {{BadApi_HostAddress}}/ddos/better?id=demo-2
+Content-Type: application/json
+
+{}
+
+### 3. Better endpoint: asynchronous delay instead of blocking the thread
+// This version uses await Task.Delay(...), so it does not block a request thread.
+// The app can still process other work while this request waits.
+POST {{BadApi_HostAddress}}/ddos/good?id=demo-3
+Content-Type: application/json
+
+{}
+
+### Optional: repeat the requests several times
+// Try sending a few requests in a row to each route.
+// Compare the response times and whether the app stays responsive.
+
+POST {{BadApi_HostAddress}}/ddos/bad?id=demo-4
+Content-Type: application/json
+
+{}
+
+POST {{BadApi_HostAddress}}/ddos/good?id=demo-5
+Content-Type: application/json
+
+{}
+
+
