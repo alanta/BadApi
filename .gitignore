@@ -39,6 +39,6 @@ bld/
 msbuild.log
 msbuild.err
 msbuild.wrn
-
+/dotnet
 
 [rR]eports/
