@@ -73,7 +73,7 @@ public class Database
             .ExecuteNonQuery();
     }
 
-    public Users Users { get; private set; }
+    public Users Users { get; private set; } = null!;
 
-    public Invoices Invoices {get; private set; }
+    public Invoices Invoices { get; private set; } = null!;
 }

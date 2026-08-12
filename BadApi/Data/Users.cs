@@ -124,7 +124,7 @@ public class Users(SqliteConnection db)
 
     private static bool VerifyHashedPassword(UserEntity user, string providedPassword)
     {
-        return PasswordHasher.VerifyHashedPassword(null!, user.HashedPassword, providedPassword) == PasswordVerificationResult.Success;
+        return PasswordHasher.VerifyHashedPassword(null!, user.HashedPassword ?? "", providedPassword) == PasswordVerificationResult.Success;
     }
 
     public async Task<UserDetailsResponse?> Login(string userName, string password)
